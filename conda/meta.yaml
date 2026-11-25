@@ -1,5 +1,5 @@
 {% set name = "phagree" %}
-{% set version = "1.0.0" %}
+{% set version = "1.1.0" %}
 {% set python_min = "3.11" %}
 
 package:
@@ -8,7 +8,7 @@ package:
 
 source:
   url: https://github.com/rarltyD/Phagree/archive/refs/tags/v{{ version }}.tar.gz
-  sha256: cdf6a85a9fdb8c094e27c0179fad2e4813553046a9dcd2e37dffd05bf7951f89
+  sha256: b1c4f3170c6a71e546517ca82c33563ce02ec1590ea53e65bc09ef5562030a6a
 
 build:
   number: 0
