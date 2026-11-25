@@ -30,6 +30,13 @@ import pyarrow as pa
 
 UNKNOWN = "unknown function"
 NEAR_TIE = 0.9
+# Fixed search space, so that a protein gets the same hits whatever else is searched with it.  By default
+# HMMER sets Z to the number of proteins searched together and domZ to the number of significant proteins
+# per profile, which made borderline E-values (and functions) depend on how many genomes were processed in
+# one run.  Z = 20,000 is the size of a search block of the study (E-values of full blocks are reproduced
+# exactly); domZ = 13 is the hit-weighted median number of significant proteins per profile in those blocks.
+SEARCH_SPACE_Z = 20000
+SEARCH_SPACE_DOMZ = 13
 
 HIT_SCHEMA = pa.schema(
     [
@@ -72,8 +79,12 @@ def load_annotations(path):
     return table
 
 
-def search_chunk(sequences, hmm_db, cpus, e_report):
-    """sequences: list of (sha, aa). Returns list of hit dicts (E <= e_report)."""
+def search_chunk(sequences, hmm_db, cpus, e_report, z=SEARCH_SPACE_Z, domz=SEARCH_SPACE_DOMZ):
+    """sequences: list of (sha, aa). Returns list of hit dicts (E <= e_report).
+
+    ``z`` and ``domz`` fix the search space (see SEARCH_SPACE_Z); ``None`` lets HMMER set them from the
+    proteins searched together (the behaviour of Phagree 1.0.0).
+    """
     import pyhmmer
     from pyhmmer.easel import Alphabet, TextSequence
     from pyhmmer.plan7 import HMMFile
@@ -90,7 +101,8 @@ def search_chunk(sequences, hmm_db, cpus, e_report):
     hits = []
     with HMMFile(hmm_db) as handle:
         profiles = handle.optimized_profiles() if handle.is_pressed() else handle
-        for top in pyhmmer.hmmsearch(profiles, block, cpus=cpus, E=e_report, domE=e_report):
+        space = {k: v for k, v in (("Z", z), ("domZ", domz)) if v is not None}
+        for top in pyhmmer.hmmsearch(profiles, block, cpus=cpus, E=e_report, domE=e_report, **space):
             phrog = top.query.name.decode() if isinstance(top.query.name, bytes) else top.query.name
             model_len = top.query.M
             for hit in top:

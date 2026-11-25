@@ -26,7 +26,14 @@ import pyarrow as pa
 import pyarrow.dataset as ds
 import pyarrow.parquet as pq
 
-from phagree.functional import HIT_SCHEMA, classify, load_annotations, search_chunk
+from phagree.functional import (
+    HIT_SCHEMA,
+    SEARCH_SPACE_DOMZ,
+    SEARCH_SPACE_Z,
+    classify,
+    load_annotations,
+    search_chunk,
+)
 
 SENSITIVITY = {
     "primary": (1e-5, 0.5, 0.5),
@@ -46,14 +53,25 @@ def file_sha(path):
     return h.hexdigest()
 
 
-def cache_init(cache, hmm):
+def cache_init(cache, hmm, space=None):
+    """Check or create the cache identity: HMM, report E-value and search space (Z, domZ).
+
+    Caches written before the search space was recorded (the study cache, Phagree 1.0.0) are accepted as
+    they are; a recorded search space must match.
+    """
     (cache / "hits").mkdir(parents=True, exist_ok=True)
     meta_path = cache / "cache_meta.json"
-    meta = {"hmm": str(Path(hmm).resolve()), "hmm_sha256": file_sha(hmm), "e_report": E_REPORT}
+    space = space or {"z": None, "domz": None}
+    meta = {"hmm": str(Path(hmm).resolve()), "hmm_sha256": file_sha(hmm), "e_report": E_REPORT,
+            "search_space": space}
     if meta_path.exists():
         old = json.loads(meta_path.read_text())
         if old["hmm_sha256"] != meta["hmm_sha256"] or old["e_report"] != E_REPORT:
             raise SystemExit("PHROGs cache identity mismatch (different HMM or E-value)")
+        if "search_space" in old and old["search_space"] != space:
+            raise SystemExit(f"PHROGs cache identity mismatch: cache search space {old['search_space']}, "
+                             f"requested {space}; use another --cache")
+        return {**meta, "search_space": old.get("search_space", "not recorded (Phagree 1.0.0 cache)")}
     else:
         meta_path.write_text(json.dumps(meta, indent=2))
     return meta
@@ -89,13 +107,19 @@ def main(argv=None):
     parser.add_argument("--annotations", default="data/db/phrogs_v4/phrog_annot_v4.tsv")
     parser.add_argument("--cpus", type=int, default=3)
     parser.add_argument("--chunk-size", type=int, default=20000)
+    parser.add_argument("--z", default=str(SEARCH_SPACE_Z),
+                        help="search space for E-values ('auto' = number of proteins in the chunk, as in 1.0.0)")
+    parser.add_argument("--domz", default=str(SEARCH_SPACE_DOMZ),
+                        help="significant proteins per profile for domain E-values ('auto' as in 1.0.0)")
     args = parser.parse_args(argv)
     import os
     limit = int(os.environ.get("PHAGREE_MAX_CPUS", "4"))  # default safety limit (override for workstations)
     if args.cpus > limit:
         raise SystemExit(f"Project limit: at most {limit} CPU threads")
+    z = None if args.z == "auto" else int(args.z)
+    domz = None if args.domz == "auto" else int(args.domz)
     run, cache = Path(args.run), Path(args.cache)
-    meta = cache_init(cache, args.hmm)
+    meta = cache_init(cache, args.hmm, {"z": z, "domz": domz})
     for source in args.seed_from:
         print(f"seeded {seed(cache, source)} chunks from {source}", flush=True)
     proteins_dir = run / "parquet" / "proteins"
@@ -115,13 +139,13 @@ def main(argv=None):
                                          [s for s, _ in chunk]]).encode()).hexdigest()[:16]
         path = cache / "hits" / f"chunk_{key}.parquet"
         t0 = time.perf_counter()
-        hits = search_chunk(chunk, args.hmm, args.cpus, E_REPORT)
+        hits = search_chunk(chunk, args.hmm, args.cpus, E_REPORT, z=z, domz=domz)
         tmp = path.with_suffix(".tmp")
         pq.write_table(pa.Table.from_pylist(hits, schema=HIT_SCHEMA), tmp)
         path.with_name(path.stem + ".members.json").write_text(json.dumps([s for s, _ in chunk]))
         tmp.replace(path)
         with log.open("a") as h:
-            h.write(json.dumps({"chunk": path.name, "proteins": len(chunk), "hits": len(hits),
+            h.write(json.dumps({"chunk": path.name, "proteins": len(chunk), "hits": len(hits), "z": z, "domz": domz,
                                 "cpus": args.cpus, "run": str(run),
                                 "wall_seconds": round(time.perf_counter() - t0, 2),
                                 "at": time.strftime("%Y-%m-%dT%H:%M:%S")}) + "\n")
@@ -156,7 +180,7 @@ def main(argv=None):
         outputs[name] = str(target)
     info = {"run": str(run), "proteins": int(len(proteins)), "searched_now": int(len(todo)),
             "cache": str(cache.resolve()), "hmm_sha256": meta["hmm_sha256"],
-            "wall_seconds": round(time.perf_counter() - started, 1), "cpus": args.cpus,
+            "wall_seconds": round(time.perf_counter() - started, 1), "cpus": args.cpus, "z": z, "domz": domz,
             "outputs": outputs}
     (out / "run_info.json").write_text(json.dumps(info, indent=2) + "\n")
     print(json.dumps(info, indent=1))

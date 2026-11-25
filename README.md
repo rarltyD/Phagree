@@ -112,6 +112,7 @@ The raw GenBank records (~4 GB), caller outputs and per-locus tables (tens of GB
 The protocol was fixed before analysis (16 October 2026); all later changes are dated amendments with rationale in [`docs/PROTOCOL.md`](docs/PROTOCOL.md). The record-age analysis and the consensus re-annotation were added after the primary analysis and are documented there as exploratory analyses E1 and E2.
 
 - **Tool versions:** PHANOTATE 1.6.7, Pyrodigal-gv 0.3.2 / Pyrodigal 3.7.1, Biopython 1.88, pyhmmer 0.12.3 with PHROGs v4 (rebuilt as HMMER3 profiles), Phold 1.2.6 / Foldseek 10.941cd33.
+- **PHROGs E-values:** computed per search block of up to 20,000 proteins in the study; from the next release, for a fixed search space of 20,000 proteins, so that results do not depend on how many genomes are annotated together.
 - **Reproducibility check:** 17 genomes recomputed from scratch on a second machine gave 7,247/7,247 identical CDS calls.
 
 ## Citation

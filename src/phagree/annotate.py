@@ -25,6 +25,9 @@ from .setup_tools import LIBRARY_NAME, db_root, find_phanotate, make_config
 EFETCH = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 GENBANK_SUFFIXES = (".gb", ".gbk", ".gbff", ".genbank")
 FASTA_SUFFIXES = (".fa", ".fasta", ".fna", ".fas")
+# PHROGs hits are cached per search space; Phagree 1.0.0 used "phrogs_cache_v4" with a variable search
+# space, so those hits are not reused.
+CACHE_NAME = "phrogs_cache_v4_z20000_domz13"
 
 
 def _fetch(accessions, dest):
@@ -126,7 +129,7 @@ def annotate(inputs, out, db=None, config=None, workers=3, topology="linear"):
         [python, "-m", "phagree", "run", "--manifest", manifest, "--config", run_config,
          "--workers", workers, "--out", out / "run", "--raw-root", out / "callers", "--diagnostic"],
         [python, "-m", "phagree.phrogs_search", "--run", out / "run", "--hmm", hmm,
-         "--cache", root / "phrogs_cache_v4", "--annotations", root / "phrogs_v4" / "phrog_annot_v4.tsv",
+         "--cache", root / CACHE_NAME, "--annotations", root / "phrogs_v4" / "phrog_annot_v4.tsv",
          "--cpus", workers],
         [python, "-m", "phagree.reannotation", out / "run", out / "reannotation",
          "--locus-eligibility", "geometry", "--include-ambiguous"],
