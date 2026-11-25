@@ -1,6 +1,6 @@
 # Study protocol and amendments
 
-Protocol v1.0 was registered on 2026-10-16, before any gene calling or hypothesis testing. Its machine-readable parameters are in `configs/protocol_v1.json`. Each later change is listed below as a dated amendment with its rationale, and every amendment was introduced before the affected results were interpreted.
+Protocol v1.0 was fixed on 2026-10-16, before any gene calling or hypothesis testing. Its machine-readable parameters are in `configs/protocol_v1.json`. Each later change is listed below as a dated amendment with its rationale, and every amendment was introduced before the affected results were interpreted.
 
 ## 1. Aim and scope of inference
 

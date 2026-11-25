@@ -12,7 +12,7 @@ Record age (E1) and consensus re-annotation (E2), as defined in [`PROTOCOL.md`](
 | Unannotated (no CDS deposited) | 716 | 4.0% |
 | Annotated but discordant | 623 | 3.5% |
 
-Discordant records have a median of 1.34 fewer CDS per kb than the callers: discordance is mostly missing annotation.
+Discordant records have a median of 1.34 fewer CDS per kb than the callers' stop-loci, mostly because 716 of them have no CDS; among annotated discordant records the median deficit is 0.51 CDS per kb (78% have fewer CDS than stop-loci), compared with 0.21 in concordant records.
 
 | Submission period | Genomes | Unannotated, % (95% CI) | Discordant among annotated, % (95% CI) |
 |---|---:|---|---|
