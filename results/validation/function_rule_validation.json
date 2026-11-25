@@ -1,0 +1,52 @@
+{
+  "proteins_searched_in_cache": 946140,
+  "published_proteins": 1333849,
+  "published_proteins_recomputed": 944883,
+  "proteins_with_hits": 718332,
+  "regression_mismatches_vs_published": 7,
+  "study_functions_changed_by_extension": 0,
+  "proteins_study_specific": 293534,
+  "proteins_rescued_long_profile": 39262,
+  "rescued_by_previous_status": {
+    "no_informative_hit": 34884,
+    "homology_unknown_function": 4378
+  },
+  "rescued_top_annotations": {
+    "DNA primase": 2191,
+    "exonuclease": 1825,
+    "DNA polymerase": 1624,
+    "thioredoxin domain": 1514,
+    "DNA methyltransferase": 1430,
+    "ATP-dependent DNA ligase": 1326,
+    "tail completion or Neck1 protein": 1250,
+    "HNH endonuclease": 1205,
+    "terminase large subunit": 1117,
+    "DNA helicase": 1058,
+    "SbcD-like subunit of palindrome specific endonuclease": 1036,
+    "minor tail protein": 1016,
+    "tail fiber protein": 968,
+    "phosphatase": 854,
+    "head maturation protease": 824
+  },
+  "rescued_by_category": {
+    "DNA, RNA and nucleotide metabolism": 18003,
+    "tail": 5415,
+    "head and packaging": 5332,
+    "other": 4822,
+    "connector": 2008,
+    "lysis": 1141,
+    "transcription regulation": 1113,
+    "moron, auxiliary metabolic gene and host takeover": 1091,
+    "integration and excision": 337
+  },
+  "agreement_named_genbank_study_rule": {
+    "genbank_cds": 409713,
+    "share_word_agreement": 0.7956
+  },
+  "agreement_named_genbank_rescued": {
+    "genbank_cds": 50101,
+    "share_word_agreement": 0.7397
+  },
+  "genbank_cds_rescued_total": 67302,
+  "genbank_cds_rescued_with_hypothetical_product": 17201
+}

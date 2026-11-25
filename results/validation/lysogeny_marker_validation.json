@@ -1,0 +1,282 @@
+{
+  "labels": "INPHARED2 phageleads_lifestyle (PhageLeads prediction)",
+  "genomes": 17862,
+  "genomes_known_label": 17665,
+  "development": {
+    "genomes": 8478,
+    "blocks": 2253
+  },
+  "validation": {
+    "genomes": 9187,
+    "blocks": 2180
+  },
+  "selection_rule": "lytic share <= 0.01 and temperate share >= 0.01 on development half",
+  "candidates_development": {
+    "integrase": {
+      "temperate_with": 2180,
+      "temperate_n": 2836,
+      "lytic_with": 124,
+      "lytic_n": 5642,
+      "sensitivity": 0.7687,
+      "lytic_share": 0.022
+    },
+    "excisionase": {
+      "temperate_with": 1376,
+      "temperate_n": 2836,
+      "lytic_with": 191,
+      "lytic_n": 5642,
+      "sensitivity": 0.4852,
+      "lytic_share": 0.0339
+    },
+    "transposase": {
+      "temperate_with": 327,
+      "temperate_n": 2836,
+      "lytic_with": 287,
+      "lytic_n": 5642,
+      "sensitivity": 0.1153,
+      "lytic_share": 0.0509
+    },
+    "CI-like repressor": {
+      "temperate_with": 40,
+      "temperate_n": 2836,
+      "lytic_with": 2,
+      "lytic_n": 5642,
+      "sensitivity": 0.0141,
+      "lytic_share": 0.0004
+    },
+    "Cro-like repressor": {
+      "temperate_with": 14,
+      "temperate_n": 2836,
+      "lytic_with": 5,
+      "lytic_n": 5642,
+      "sensitivity": 0.0049,
+      "lytic_share": 0.0009
+    },
+    "superinfection immunity": {
+      "temperate_with": 0,
+      "temperate_n": 2836,
+      "lytic_with": 0,
+      "lytic_n": 5642,
+      "sensitivity": 0.0,
+      "lytic_share": 0.0
+    },
+    "partition protein": {
+      "temperate_with": 226,
+      "temperate_n": 2836,
+      "lytic_with": 575,
+      "lytic_n": 5642,
+      "sensitivity": 0.0797,
+      "lytic_share": 0.1019
+    },
+    "Arc-like repressor": {
+      "temperate_with": 198,
+      "temperate_n": 2836,
+      "lytic_with": 25,
+      "lytic_n": 5642,
+      "sensitivity": 0.0698,
+      "lytic_share": 0.0044
+    },
+    "anti-repressor": {
+      "temperate_with": 661,
+      "temperate_n": 2836,
+      "lytic_with": 137,
+      "lytic_n": 5642,
+      "sensitivity": 0.2331,
+      "lytic_share": 0.0243
+    },
+    "recombinase": {
+      "temperate_with": 65,
+      "temperate_n": 2836,
+      "lytic_with": 44,
+      "lytic_n": 5642,
+      "sensitivity": 0.0229,
+      "lytic_share": 0.0078
+    },
+    "transcriptional repressor": {
+      "temperate_with": 1852,
+      "temperate_n": 2836,
+      "lytic_with": 314,
+      "lytic_n": 5642,
+      "sensitivity": 0.653,
+      "lytic_share": 0.0557
+    }
+  },
+  "first_prespecified_rule": {
+    "selected": [
+      "CI-like repressor",
+      "Arc-like repressor",
+      "recombinase"
+    ],
+    "validation": {
+      "temperate_with": 275,
+      "temperate_n": 2345,
+      "lytic_with": 66,
+      "lytic_n": 6842,
+      "sensitivity": 0.1173,
+      "lytic_share": 0.0096
+    }
+  },
+  "greedy_path_development": [
+    {
+      "add": "integrase",
+      "youden_dev": 0.7467,
+      "gain": 0.7467
+    },
+    {
+      "add": "transcriptional repressor",
+      "youden_dev": 0.7658,
+      "gain": 0.0191
+    },
+    {
+      "add": "anti-repressor",
+      "youden_dev": 0.7735,
+      "gain": 0.0076
+    },
+    {
+      "add": "CI-like repressor",
+      "youden_dev": 0.7735,
+      "gain": 0.0,
+      "stopped": true
+    }
+  ],
+  "selected": [
+    "integrase",
+    "transcriptional repressor",
+    "anti-repressor"
+  ],
+  "validation_per_marker": {
+    "integrase": {
+      "temperate_with": 1591,
+      "temperate_n": 2345,
+      "lytic_with": 128,
+      "lytic_n": 6842,
+      "sensitivity": 0.6785,
+      "lytic_share": 0.0187
+    },
+    "excisionase": {
+      "temperate_with": 553,
+      "temperate_n": 2345,
+      "lytic_with": 263,
+      "lytic_n": 6842,
+      "sensitivity": 0.2358,
+      "lytic_share": 0.0384
+    },
+    "transposase": {
+      "temperate_with": 153,
+      "temperate_n": 2345,
+      "lytic_with": 133,
+      "lytic_n": 6842,
+      "sensitivity": 0.0652,
+      "lytic_share": 0.0194
+    },
+    "CI-like repressor": {
+      "temperate_with": 38,
+      "temperate_n": 2345,
+      "lytic_with": 2,
+      "lytic_n": 6842,
+      "sensitivity": 0.0162,
+      "lytic_share": 0.0003
+    },
+    "Cro-like repressor": {
+      "temperate_with": 29,
+      "temperate_n": 2345,
+      "lytic_with": 0,
+      "lytic_n": 6842,
+      "sensitivity": 0.0124,
+      "lytic_share": 0.0
+    },
+    "superinfection immunity": {
+      "temperate_with": 0,
+      "temperate_n": 2345,
+      "lytic_with": 3,
+      "lytic_n": 6842,
+      "sensitivity": 0.0,
+      "lytic_share": 0.0004
+    },
+    "partition protein": {
+      "temperate_with": 226,
+      "temperate_n": 2345,
+      "lytic_with": 449,
+      "lytic_n": 6842,
+      "sensitivity": 0.0964,
+      "lytic_share": 0.0656
+    },
+    "Arc-like repressor": {
+      "temperate_with": 228,
+      "temperate_n": 2345,
+      "lytic_with": 23,
+      "lytic_n": 6842,
+      "sensitivity": 0.0972,
+      "lytic_share": 0.0034
+    },
+    "anti-repressor": {
+      "temperate_with": 917,
+      "temperate_n": 2345,
+      "lytic_with": 268,
+      "lytic_n": 6842,
+      "sensitivity": 0.391,
+      "lytic_share": 0.0392
+    },
+    "recombinase": {
+      "temperate_with": 30,
+      "temperate_n": 2345,
+      "lytic_with": 41,
+      "lytic_n": 6842,
+      "sensitivity": 0.0128,
+      "lytic_share": 0.006
+    },
+    "transcriptional repressor": {
+      "temperate_with": 1393,
+      "temperate_n": 2345,
+      "lytic_with": 304,
+      "lytic_n": 6842,
+      "sensitivity": 0.594,
+      "lytic_share": 0.0444
+    }
+  },
+  "validation_call": {
+    "temperate_with": 2018,
+    "temperate_n": 2345,
+    "lytic_with": 617,
+    "lytic_n": 6842,
+    "sensitivity": 0.8606,
+    "lytic_share": 0.0902,
+    "specificity": 0.9098,
+    "sensitivity_ci95": [
+      0.8097,
+      0.9057
+    ],
+    "specificity_ci95": [
+      0.8514,
+      0.9489
+    ]
+  },
+  "validation_strong_integrase": {
+    "temperate_with": 1591,
+    "temperate_n": 2345,
+    "lytic_with": 128,
+    "lytic_n": 6842,
+    "sensitivity": 0.6785,
+    "lytic_share": 0.0187,
+    "specificity": 0.9813,
+    "sensitivity_ci95": [
+      0.575,
+      0.7751
+    ],
+    "specificity_ci95": [
+      0.9739,
+      0.9866
+    ]
+  },
+  "all_known_call": {
+    "temperate_with": 4471,
+    "temperate_n": 5181,
+    "lytic_with": 1133,
+    "lytic_n": 12484,
+    "sensitivity": 0.863,
+    "lytic_share": 0.0908,
+    "specificity": 0.9092
+  },
+  "unknown_label_with_markers": 0,
+  "unknown_label_n": 197
+}

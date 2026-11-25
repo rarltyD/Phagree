@@ -1,0 +1,67 @@
+{
+  "variants": {
+    "baseline_study_functions": {
+      "named_genbank_cds": 409713,
+      "word_agreement": 0.7956,
+      "word_agreement_synonyms": 0.8409
+    },
+    "qcov>=0.9,pcov>=0.0": {
+      "proteins_rescued": 52428,
+      "genbank_cds_rescued": 86899,
+      "genbank_cds_rescued_hypothetical": 23967,
+      "named_genbank_cds": 62932,
+      "word_agreement": 0.7212,
+      "word_agreement_synonyms": 0.7673
+    },
+    "qcov>=0.95,pcov>=0.0": {
+      "proteins_rescued": 49151,
+      "genbank_cds_rescued": 83270,
+      "genbank_cds_rescued_hypothetical": 22546,
+      "named_genbank_cds": 60724,
+      "word_agreement": 0.7179,
+      "word_agreement_synonyms": 0.7645
+    },
+    "qcov>=0.9,pcov>=0.2": {
+      "proteins_rescued": 45722,
+      "genbank_cds_rescued": 77050,
+      "genbank_cds_rescued_hypothetical": 20201,
+      "named_genbank_cds": 56849,
+      "word_agreement": 0.728,
+      "word_agreement_synonyms": 0.7743
+    },
+    "qcov>=0.9,pcov>=0.3": {
+      "proteins_rescued": 37223,
+      "genbank_cds_rescued": 64623,
+      "genbank_cds_rescued_hypothetical": 16434,
+      "named_genbank_cds": 48189,
+      "word_agreement": 0.7367,
+      "word_agreement_synonyms": 0.7879
+    },
+    "qcov>=0.95,pcov>=0.3": {
+      "proteins_rescued": 34974,
+      "genbank_cds_rescued": 61613,
+      "genbank_cds_rescued_hypothetical": 15465,
+      "named_genbank_cds": 46148,
+      "word_agreement": 0.7328,
+      "word_agreement_synonyms": 0.7851
+    },
+    "qcov>=0.8,pcov>=0.3": {
+      "proteins_rescued": 39262,
+      "genbank_cds_rescued": 67302,
+      "genbank_cds_rescued_hypothetical": 17201,
+      "named_genbank_cds": 50101,
+      "word_agreement": 0.7397,
+      "word_agreement_synonyms": 0.7895
+    },
+    "qcov>=0.95,pcov>=0.4": {
+      "proteins_rescued": 19683,
+      "genbank_cds_rescued": 35371,
+      "genbank_cds_rescued_hypothetical": 8847,
+      "named_genbank_cds": 26524,
+      "word_agreement": 0.7486,
+      "word_agreement_synonyms": 0.7724
+    }
+  },
+  "chosen_prespecified": null,
+  "chosen_synonyms": null
+}

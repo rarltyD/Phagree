@@ -12,6 +12,7 @@ results/*/
 !results/phold/
 !results/record_age/
 !results/reannotation/
+!results/validation/
 *.parquet
 !scripts/reproducibility/reference_calls.parquet
 *.duckdb
