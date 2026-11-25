@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this code or its results, please cite it as below."
+title: "Phagree: gene caller agreement and consensus re-annotation of bacteriophage genomes"
+authors:
+  - family-names: Kerimov
+    given-names: T. T.
+    email: kerimov03.t14@gmail.com
+    affiliation: "Research and Production Center for Microbiology and Virology, Almaty, Kazakhstan"
+    orcid: "https://orcid.org/0009-0005-6691-4969"
+version: 1.0.0
+date-released: 2026-11-25
+license: MIT
+keywords: [bacteriophage, genome annotation, gene calling, GenBank, re-annotation, PHANOTATE, Pyrodigal-gv, PHROGs, Phold]
