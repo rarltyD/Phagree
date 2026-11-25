@@ -31,6 +31,7 @@ from phagree.functional import (
     SEARCH_SPACE_DOMZ,
     SEARCH_SPACE_Z,
     classify,
+    classify_extended,
     load_annotations,
     search_chunk,
 )
@@ -178,6 +179,20 @@ def main(argv=None):
         target = out / f"protein_function_{name}.parquet"
         pd.DataFrame(recs).to_parquet(target, index=False)
         outputs[name] = str(target)
+    # Study rule plus the long-profile rescue (Phagree 1.1; used with --function-table extended).
+    e, q, p = SENSITIVITY["primary"]
+    recs = []
+    for sha, length in zip(proteins.protein_sha256, proteins.length_aa):
+        if sha in done:
+            row = classify_extended(grouped.get(sha, []), annotations, e, q, p)
+        else:
+            row = {"function_status": "not_searched_or_failed", "best_phrog": None, "best_category": None,
+                   "best_annot": None, "best_evalue": None, "best_bitscore": None, "n_passing_hits": 0,
+                   "function_rule": "study"}
+        recs.append({"protein_sha256": sha, "length_aa": length, **row, "e_max": e, "qcov_min": q, "pcov_min": p})
+    target = out / "protein_function_extended.parquet"
+    pd.DataFrame(recs).to_parquet(target, index=False)
+    outputs["extended"] = str(target)
     info = {"run": str(run), "proteins": int(len(proteins)), "searched_now": int(len(todo)),
             "cache": str(cache.resolve()), "hmm_sha256": meta["hmm_sha256"],
             "wall_seconds": round(time.perf_counter() - started, 1), "cpus": args.cpus, "z": z, "domz": domz,

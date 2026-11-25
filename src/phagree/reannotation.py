@@ -57,13 +57,20 @@ def main(argv=None):
     p.add_argument("--genome-table", help="genome_table.csv.gz of the record-age analysis")
     p.add_argument("--locus-eligibility", choices=("primary", "geometry"), default="primary")
     p.add_argument("--include-ambiguous", action="store_true")
+    p.add_argument("--function-table", choices=("primary", "extended"), default="primary",
+                   help="PHROGs functions: the study rule (primary) or the study rule with the long-profile "
+                        "rescue (extended, phrogs/protein_function_extended.parquet)")
+    p.add_argument("--fasta-genomes", help="file listing genomes given as FASTA (no GenBank annotation): "
+                                           "their record class is 'draft' and labels do not mention GenBank")
     a = p.parse_args(argv)
     run, out = Path(a.run), Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     def pq(table):
         return (run / "parquet" / table / "*.parquet").as_posix()
 
-    fn_path = (run / "phrogs" / "protein_function_primary.parquet").as_posix()
+    fn_path = (run / "phrogs" / f"protein_function_{a.function_table}.parquet").as_posix()
+    fasta = set(Path(a.fasta_genomes).read_text().split()) if a.fasta_genomes else set()
+    rule_col = "f.function_rule" if a.function_table == "extended" else "NULL::VARCHAR AS function_rule"
     con = duckdb.connect()
     con.execute("SET memory_limit='4GB'; SET threads=3; SET preserve_insertion_order=false")
 
@@ -95,7 +102,7 @@ def main(argv=None):
            list_max(list_transform(c.segments, s -> s.end0)) AS hi,
            c.feature_nt_length // 3 - 1 AS length_aa, c.protein_sha256,
            CASE WHEN c.source = 'genbank' THEN json_extract_string(c.qualifiers_json, '$.product[0]') END AS product,
-           f.function_status, f.best_phrog, f.best_category, f.best_annot, f.best_evalue,
+           f.function_status, f.best_phrog, f.best_category, f.best_annot, f.best_evalue, {rule_col},
            NOT c.eligible_primary AS ambiguous
     FROM read_parquet('{pq("cds_calls")}', union_by_name=true) c
     JOIN cohort USING (accession_version)
@@ -127,6 +134,7 @@ def main(argv=None):
            arg_min(best_annot, best_evalue) FILTER (WHERE function_status = 'specific_function') AS annot,
            arg_min(best_category, best_evalue) FILTER (WHERE function_status = 'specific_function') AS category,
            arg_min(best_phrog, best_evalue) FILTER (WHERE function_status = 'specific_function') AS phrog,
+           arg_min(function_rule, best_evalue) FILTER (WHERE function_status = 'specific_function') AS function_rule,
            bool_or(ambiguous) AS ambiguous_codon
     FROM calls2
     GROUP BY genome_id, strand, stop_key
@@ -221,6 +229,8 @@ def main(argv=None):
 
 
     def record_class(r):
+        if r.name in fasta:
+            return "draft"
         if r.unannotated == 1:
             return "unannotated"
         if r.flagged_share >= 0.10 or r.disc_annotated == 1:
@@ -256,6 +266,8 @@ def main(argv=None):
                   "gb_only_function": "GenBank+PHROGs", "add_A": "2 callers+PHROGs (absent from GenBank)",
                   "add_B": "2 callers (absent from GenBank)", "two_caller_other": "2 callers (absent from GenBank)",
                   "one_caller_function": "1 caller+PHROGs"}[r.category_rule]
+            if r.accession_version in fasta:  # new genome: there is no GenBank annotation to compare with
+                ev = ev.replace(" (absent from GenBank)", "")
             product = r.annot if isinstance(r.annot, str) and r.annot else "hypothetical protein"
             attrs = (f"ID={r.accession_version}_{r.lo + 1}_{'+' if r.strand == 1 else '-'};"
                      f"product={product.replace(';', ',')};evidence={ev}")
@@ -265,8 +277,19 @@ def main(argv=None):
                 attrs += f";genbank_product={r.gb_product.replace(';', ',')}"
             if r.ambiguous_bases:
                 attrs += f";ambiguous_bases={r.ambiguous_bases}"
+            if r.function_rule == "long_profile":
+                attrs += ";function_rule=long_profile"
             g.write(f"{r.accession_version}\tPhagree\tCDS\t{r.lo + 1}\t{r.hi}\t.\t"
                     f"{'+' if r.strand == 1 else '-'}\t0\t{attrs}\n")
+
+    # All consensus genes as a table (used by the per-genome report and the NCBI submission files).
+    cons = keep.assign(start1=keep.lo + 1, end1=keep.hi,
+                       product=keep.annot.where(keep.annot.notna() & keep.annot.ne(""), "hypothetical protein"),
+                       draft=keep.accession_version.isin(fasta))
+    cons[["accession_version", "start1", "end1", "strand", "category_rule", "gb", "pha", "pyr", "n_callers",
+          "length_aa", "product", "phrog", "category", "function_rule", "gb_product", "ambiguous_bases", "draft"]] \
+        .sort_values(["accession_version", "start1", "end1", "strand"]) \
+        .to_csv(out / "consensus_genes.csv.gz", index=False)
 
     relabel = genes[genes.functional_relabel.eq(True)]
     summ = {

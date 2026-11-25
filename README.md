@@ -55,19 +55,33 @@ Until the Bioconda package is published, the same environment is created with:
 ```bash
 mamba create -n phagree -c conda-forge -c bioconda python=3.13 phanotate=1.6.7 pyrodigal-gv=0.3.2 pyhmmer=0.12.3 "python-duckdb<2" pyarrow biopython pandas psutil pip
 conda activate phagree
-pip install --no-deps git+https://github.com/rarltyD/Phagree@v1.0.0
+pip install --no-deps git+https://github.com/rarltyD/Phagree@v1.1.0
 ```
 
 From a checkout of this repository (see Quick start), the same commands are `.venv/bin/phagree setup` and `.venv/bin/phagree annotate ...`.
 
-`annotate` accepts GenBank accessions, GenBank files and FASTA files of new genomes, in any combination. Genomes with ambiguous bases (N or other IUPAC codes) are processed: affected genes are compared by coordinates, searched as X-masked proteins and flagged. Results in `results/my_phages/reannotation/`:
+`annotate` accepts GenBank accessions, GenBank files and FASTA files of new genomes, in any combination. Genomes with ambiguous bases (N or other IUPAC codes) are processed: affected genes are compared by coordinates, searched as X-masked proteins and flagged. Options:
+
+- `--topology circular` for circular genomes given as FASTA;
+- `--function-rule extended` adds PHROGs functions for proteins that align with at least 80% of their length to at least 30% of a longer profile, such as the large terminase subunit of phage lambda. These functions agree less often with GenBank product names than functions of the study rule (79% versus 84% in the cohort), so they are marked in the output; the default `study` uses the rule of the study (see [`docs/VALIDATION_1.1.md`](docs/VALIDATION_1.1.md));
+- `--locus-tag-prefix ABC12` adds locus tags to the NCBI submission files.
+
+Results in `results/my_phages/`:
 
 | File | What it tells you |
 |---|---|
-| `records_reannotation.csv.gz` | One row per genome: consistent, minor revision, major revision or unannotated, with gene counts and ambiguous bases |
-| `gene_proposals.csv.gz` | Genes to check (no support), to add (both callers + PHROGs function), to rename (hypothetical with a known function) and start codons to change |
-| `consensus_annotation.gff3.gz` | Consensus gene set with PHROGs product names; for a FASTA genome this is a complete draft annotation |
-| `sequence_quality.csv.gz` | Ambiguous bases per genome and their positions |
+| `report/genome_summary.tsv` | One row per genome: length, GC, coding density, genes by PHROGs category, lysogeny evidence, record class and all gene counts |
+| `report/lysogeny_markers.tsv` | Marker genes of temperate phages (integrase, repressors, excisionase, …) with coordinates |
+| `ncbi/<genome>.gbk` | GenBank file with the consensus annotation (products, translations, inference) |
+| `ncbi/<genome>.tbl`, `.fsa` | Feature table and sequence for NCBI submission (table2asn or BankIt) |
+| `ncbi/<genome>.faa` | Proteins of the consensus genes |
+| `reannotation/records_reannotation.csv.gz` | One row per genome: consistent, minor revision, major revision, unannotated, or draft (FASTA input), with gene counts and ambiguous bases |
+| `reannotation/gene_proposals.csv.gz` | Genes to check (no support), to add (both callers + PHROGs function), to rename (hypothetical with a known function) and start codons to change |
+| `reannotation/consensus_annotation.gff3.gz` | Consensus gene set with PHROGs product names; for a FASTA genome this is a complete draft annotation |
+| `reannotation/consensus_genes.csv.gz` | The same genes as a table, with the callers that predict each gene |
+| `reannotation/sequence_quality.csv.gz` | Ambiguous bases per genome and their positions |
+
+**Lysogeny evidence** is `strong` when the genome encodes an integrase, `weak` when it encodes only a transcriptional repressor or an anti-repressor, and `none` otherwise. Compared with the INPHARED2 lifestyle labels (PhageLeads predictions, not experimental data), integrase alone and any of the three markers give the agreement reported in [`docs/VALIDATION_1.1.md`](docs/VALIDATION_1.1.md). `none` means that no marker was found, not that the phage is virulent.
 
 A typical phage genome takes under a minute. Flagged and proposed genes are review targets, not proven errors.
 
@@ -119,7 +133,7 @@ The protocol was fixed before analysis (16 October 2026); all later changes are 
 
 Kerimov, T.T. Phagree: gene caller agreement and consensus re-annotation of bacteriophage genomes (v1.0.0). Zenodo, 2026. https://doi.org/10.5281/zenodo.24523209
 
-The DOI above is the exact version used in the article; https://doi.org/10.5281/zenodo.24523208 always resolves to the latest release. See also [`CITATION.cff`](CITATION.cff).
+The DOI above is version 1.0.0, used in the article (the study results are unchanged in later versions); https://doi.org/10.5281/zenodo.24523208 always resolves to the latest release. See also [`CITATION.cff`](CITATION.cff).
 
 ## Contact
 

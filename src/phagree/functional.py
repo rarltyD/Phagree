@@ -129,15 +129,21 @@ def search_chunk(sequences, hmm_db, cpus, e_report, z=SEARCH_SPACE_Z, domz=SEARC
     return hits
 
 
-def classify(hits, annotations, e_max=1e-5, qcov_min=0.5, pcov_min=0.5):
-    """Return one status row for a single protein given all its raw hits."""
+def classify(hits, annotations, e_max=1e-5, qcov_min=0.5, pcov_min=0.5, qcov_long=None, pcov_long=0.0):
+    """Return one status row for a single protein given all its raw hits.
+
+    With ``qcov_long`` a hit also passes when at least this fraction of the protein is aligned and the
+    profile coverage is at least ``pcov_long`` (used by :func:`classify_extended`).
+    """
     passing = sorted(
         (
             h
             for h in hits
             if h["evalue"] <= e_max
             and h["query_coverage"] >= qcov_min
-            and h["profile_coverage"] >= pcov_min
+            and (h["profile_coverage"] >= pcov_min
+                 or (qcov_long is not None and h["query_coverage"] >= qcov_long
+                     and h["profile_coverage"] >= pcov_long))
         ),
         key=lambda h: (-h["bitscore"], h["evalue"], h["phrog"]),
     )
@@ -164,3 +170,28 @@ def classify(hits, annotations, e_max=1e-5, qcov_min=0.5, pcov_min=0.5):
         "best_bitscore": best["bitscore"],
         "n_passing_hits": len(passing),
     }
+
+
+LONG_PROFILE_QCOV = 0.8
+LONG_PROFILE_PCOV = 0.3
+
+
+def classify_extended(hits, annotations, e_max=1e-5, qcov_min=0.5, pcov_min=0.5,
+                      qcov_long=LONG_PROFILE_QCOV, pcov_long=LONG_PROFILE_PCOV):
+    """Study rule with a rescue for proteins that align mostly to a longer profile.
+
+    Some PHROGs profiles are much longer than their members (fusions, long multi-domain families), so a
+    complete protein can cover less than half of the profile.  A protein keeps its study result when that
+    result is a specific function (or ambiguous).  Otherwise the hits that align at least ``qcov_long`` of
+    the protein (and at least ``pcov_long`` of the profile) are added to the passing hits and the protein is
+    classified again with the same rules (best bitscore, near-tie ambiguity); a specific function found this
+    way is reported with ``function_rule = "long_profile"``.  The study result is never replaced by a
+    non-specific one.
+    """
+    study = classify(hits, annotations, e_max, qcov_min, pcov_min)
+    if study["function_status"] in ("specific_function", "ambiguous"):
+        return {**study, "function_rule": "study"}
+    rescued = classify(hits, annotations, e_max, qcov_min, pcov_min, qcov_long=qcov_long, pcov_long=pcov_long)
+    if rescued["function_status"] == "specific_function":
+        return {**rescued, "function_rule": "long_profile"}
+    return {**study, "function_rule": "study"}

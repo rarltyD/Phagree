@@ -18,3 +18,11 @@ def test_unknown_input_is_rejected(tmp_path):
 
     with pytest.raises(ValueError):
         collect_inputs(["not a genome"], tmp_path / "gb")
+
+
+def test_input_kinds_are_reported(tmp_path):
+    fasta = tmp_path / "new.fasta"
+    fasta.write_text(">new_phage\nATGAAATTTTAA\n")
+    kinds = {}
+    genomes = collect_inputs([str(fasta)], tmp_path / "gb", kinds=kinds)
+    assert kinds == {genomes[0][0]: "fasta"}

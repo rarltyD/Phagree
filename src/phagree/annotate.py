@@ -75,27 +75,36 @@ def _fasta(path, dest, topology):
     return genomes
 
 
-def collect_inputs(inputs, dest, topology="linear"):
+def collect_inputs(inputs, dest, topology="linear", kinds=None):
+    """Genomes as (accession.version, GenBank path); ``kinds`` (optional dict) receives the input type."""
     dest.mkdir(parents=True, exist_ok=True)
     genomes, accessions = [], []
+    kinds = {} if kinds is None else kinds
     for item in inputs:
         path = Path(item)
         if path.suffix.lower() in GENBANK_SUFFIXES and path.exists():
-            genomes += _genbank(path, dest)
+            new = _genbank(path, dest)
+            kinds.update({g: "genbank" for g, _ in new})
+            genomes += new
         elif path.suffix.lower() in FASTA_SUFFIXES and path.exists():
-            genomes += _fasta(path, dest, topology)
+            new = _fasta(path, dest, topology)
+            kinds.update({g: "fasta" for g, _ in new})
+            genomes += new
         elif re.fullmatch(r"[A-Z]{1,6}_?\d+(\.\d+)?", item):
             accessions.append(item)
         else:
             raise ValueError(f"cannot use input: {item}")
     if accessions:
-        genomes += _fetch(accessions, dest)
+        new = _fetch(accessions, dest)
+        kinds.update({g: "accession" for g, _ in new})
+        genomes += new
     if len({g for g, _ in genomes}) != len(genomes):
         raise ValueError("duplicate genome identifiers in the input")
     return genomes
 
 
-def annotate(inputs, out, db=None, config=None, workers=3, topology="linear"):
+def annotate(inputs, out, db=None, config=None, workers=3, topology="linear", function_rule="study",
+             locus_tag_prefix=None):
     out = Path(out)
     root = db_root(db)
     hmm = root / LIBRARY_NAME
@@ -110,7 +119,10 @@ def annotate(inputs, out, db=None, config=None, workers=3, topology="linear"):
         if not phanotate:
             raise FileNotFoundError("PHANOTATE not found: run 'phagree setup' for instructions")
         settings = make_config(phanotate)
-    genomes = collect_inputs(inputs, out / "genbank", topology)
+    kinds = {}
+    genomes = collect_inputs(inputs, out / "genbank", topology, kinds)
+    fasta_list = out / "fasta_genomes.txt"
+    fasta_list.write_text("".join(f"{g}\n" for g, k in sorted(kinds.items()) if k == "fasta"))
     manifest = out / "manifest.csv"
     with manifest.open("w", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=["accession", "accession_version", "genbank_path",
@@ -132,7 +144,9 @@ def annotate(inputs, out, db=None, config=None, workers=3, topology="linear"):
          "--cache", root / CACHE_NAME, "--annotations", root / "phrogs_v4" / "phrog_annot_v4.tsv",
          "--cpus", workers],
         [python, "-m", "phagree.reannotation", out / "run", out / "reannotation",
-         "--locus-eligibility", "geometry", "--include-ambiguous"],
+         "--locus-eligibility", "geometry", "--include-ambiguous", "--fasta-genomes", fasta_list,
+         "--function-table", "extended" if function_rule == "extended" else "primary"],
+        [python, "-m", "phagree.report", out] + (["--locus-tag-prefix", locus_tag_prefix] if locus_tag_prefix else []),
     ]
     for i, step in enumerate(steps):
         with log.open("a") as handle:
@@ -146,4 +160,6 @@ def annotate(inputs, out, db=None, config=None, workers=3, topology="linear"):
     return {"genomes": len(genomes), "failed_imports": summary.get("failed_imports", []),
             "record_classes": result["record_classes"],
             "records_with_ambiguous_bases": result.get("records_with_ambiguous_bases"),
-            "outputs": str(out / "reannotation")}
+            "function_rule": function_rule,
+            "outputs": {"reannotation": str(out / "reannotation"), "report": str(out / "report"),
+                        "ncbi": str(out / "ncbi")}}

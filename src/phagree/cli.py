@@ -121,7 +121,12 @@ def parser():
     p.add_argument("--db", help="database folder (default: $PHAGREE_DB, else data/db of a repository checkout, else ~/.local/share/phagree)")
     p.add_argument("--config", help="run configuration (default: run_config.json written by setup)")
     p.add_argument("--workers", type=int, default=3)
-    p.add_argument("--topology", choices=("linear", "circular"), default="linear")
+    p.add_argument("--topology", choices=("linear", "circular"), default="linear",
+                   help="topology of genomes given as FASTA")
+    p.add_argument("--function-rule", choices=("study", "extended"), default="study",
+                   help="PHROGs function rule: as in the study, or with the long-profile rescue "
+                        "(more functions for proteins aligned to longer profiles; less reliable, see docs/VALIDATION_1.1.md)")
+    p.add_argument("--locus-tag-prefix", help="locus_tag prefix for the NCBI submission files (e.g. ABC12)")
     p = commands.add_parser("build-db")
     p.add_argument("--data-root", required=True)
     p.add_argument("--out", required=True)
@@ -237,7 +242,8 @@ def main(argv=None):
         elif args.command == "annotate":
             from .annotate import annotate
 
-            result = annotate(args.inputs, args.out, args.db, args.config, args.workers, args.topology)
+            result = annotate(args.inputs, args.out, args.db, args.config, args.workers, args.topology,
+                              function_rule=args.function_rule, locus_tag_prefix=args.locus_tag_prefix)
         elif args.command == "build-db":
             from .storage import build_db
 
