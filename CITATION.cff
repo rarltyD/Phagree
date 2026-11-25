@@ -8,6 +8,12 @@ authors:
     affiliation: "Research and Production Center for Microbiology and Virology, Almaty, Kazakhstan"
     orcid: "https://orcid.org/0009-0005-6691-4969"
 version: 1.0.0
+doi: 10.5281/zenodo.24523209
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.24523208
+    description: All versions (resolves to the latest release)
+repository-code: "https://github.com/rarltyD/Phagree"
 date-released: 2026-11-25
 license: MIT
 keywords: [bacteriophage, genome annotation, gene calling, GenBank, re-annotation, PHANOTATE, Pyrodigal-gv, PHROGs, Phold]

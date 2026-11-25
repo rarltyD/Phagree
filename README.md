@@ -1,5 +1,7 @@
 # Phagree
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24523208.svg)](https://doi.org/10.5281/zenodo.24523208)
+
 **Gene caller agreement and the quality of bacteriophage genome annotations**
 
 Phagree (*phage* + *agree*) checks and annotates bacteriophage genomes by the agreement of two gene callers, PHANOTATE and Pyrodigal-gv, and by PHROGs homology. It reports GenBank genes without support, genes to add, start codons to correct and hypothetical proteins with a known function, and writes a consensus annotation. For a new genome given as FASTA it produces a draft annotation. Install and run it with two commands (see [Annotate or re-annotate your own genomes](#annotate-or-re-annotate-your-own-genomes)).
@@ -114,7 +116,9 @@ The protocol was fixed before analysis (16 October 2026); all later changes are 
 
 ## Citation
 
-See [`CITATION.cff`](CITATION.cff). Releases are archived on Zenodo.
+Kerimov, T.T. Phagree: gene caller agreement and consensus re-annotation of bacteriophage genomes (v1.0.0). Zenodo, 2026. https://doi.org/10.5281/zenodo.24523209
+
+The DOI above is the exact version used in the article; https://doi.org/10.5281/zenodo.24523208 always resolves to the latest release. See also [`CITATION.cff`](CITATION.cff).
 
 ## Contact
 
